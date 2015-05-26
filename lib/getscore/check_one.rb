@@ -48,7 +48,7 @@ class CheckOne
     request.set_form_data({ 'zjh' => @username, 'mm' => @passwd })
     respones = @http.request(request)
 
-    return nil  if !respones.code == '200'
+    raise "can't get session"  if !respones.code == '200'
     @session = respones["set-cookie"]
   end
 
