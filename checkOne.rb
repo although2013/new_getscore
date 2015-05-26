@@ -3,7 +3,6 @@ require 'net/http'
 require 'open-uri'
 require 'digest'
 
-require './getClassTxt.rb'
 
 class String
   #等宽字体中英文混合时占用的宽度
@@ -13,19 +12,23 @@ class String
 end
 
 
-class Checkmyself
-  include GetClassTxt
-
+class CheckOne
   attr_accessor :session
 
-  def initialize
-    @username = "2012021712"
-    @passwd   = "1"
-    @host     = "192.168.11.239"
+  def initialize(username, passwd)
+    @username = username
+    @passwd   = passwd
     @port     = 80
-    @session  =  nil
+    @session  = nil
 
+    check_internet
     @http = Net::HTTP.new(@host, @port)
+  end
+
+  def check_internet
+    @host = "192.168.11.239"
+    resp = Net::HTTP.get_response(@host, '/loginAction.do')
+    @host = "60.219.165.24" if resp.code != 200
   end
 
   def get_score
@@ -34,56 +37,47 @@ class Checkmyself
     request = Net::HTTP::Get.new('/bxqcjcxAction.do')
     request['Cookie'] = @session  
     respones = @http.request(request)
-    body = respones.body.force_encoding('gbk').encode('utf-8').gsub(/\s/,"")
+    @body = respones.body.force_encoding('gbk').encode('utf-8').gsub(/\s/,"")
 
-    return body
+    self
   end
   
   def get_session
     puts "get session"
     request = Net::HTTP::Post.new('/loginAction.do')
     request.set_form_data({ 'zjh' => @username, 'mm' => @passwd })
-
     respones = @http.request(request)
+
     return nil  if !respones.code == '200'
     @session = respones["set-cookie"]
   end
 
-  def different?(html)
+  def different?
     puts "diff?"
-    last = File.exist?("last_digest") ? File.read("last_digest") : nil
-    now = Digest::SHA2.hexdigest(html)
+    last = File.exist?("last_digest.tmp") ? File.read("last_digest.tmp") : nil
+    now = Digest::SHA2.hexdigest(@body)
+
     if last == now
-      return true
-    else
-      File.open("last_digest", "w") { |file| file.print now }
       return false
+    else
+      puts "It's different now!"
+      File.open("last_digest.tmp", "w") { |file| file.print now }
+      return true
     end
   end
 
-  def parse_html(html)
+  def parse_html
     puts "parse my score"
-    html =~ /thead(.*)<\/TABLE/
+    @body =~ /thead(.*)<\/TABLE/
     arr = $1.scan(/>(.{0,15})<\/td/).map(&:first)
     max_ulen = arr.map(&:ulen).max
+    puts "---------------------------------------------------"
     arr.each_slice(7) do |row|
-      printf("%-9s %-3s %s %s %2s %5s %3s\n",row[0],row[1],row[2]," "*(max_ulen - row[2].ulen),row[3],row[4],row[5],row[6])
+      printf("%-9s %-4s %-s %s %-5s %-4s %-4s\n",row[0],row[1],row[2],(" "*(max_ulen - row[2].ulen)),row[4],row[5],row[6])
     end
   end
 
 end
-
-
-me = Checkmyself.new
-
-#me.get_session
-#html = me.get_score
-#if me.different?(html)
-#  syncClass
-#end
-#me.parse_html(html)
-
-#me.get_whole_page
 
 
 
