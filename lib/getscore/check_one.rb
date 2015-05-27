@@ -26,30 +26,42 @@ class CheckOne
   end
 
   def check_internet
-    @host = "192.168.11.239"
-    resp = Net::HTTP.get_response(@host, '/loginAction.do')
-    @host = "60.219.165.24" if resp.code != 200
+    hosts = ["60.219.165.24", "192.168.11.239"]
+    threads = []
+    hosts.each do |host|
+      threads << Thread.new do
+        uri = URI("http://#{host}/loginAction.do")
+        response = Net::HTTP.post_form(uri, 'zjh' => @username, 'mm' => @passwd)
+        return if "200" != response.code
+        threads.each { |thread| Thread.kill(thread) if thread != Thread.current }
+        @host = host
+        @session = response["set-cookie"]
+        puts "*#{@session}*"
+        puts "#{host}"
+      end
+    end
+    threads.each(&:join)
+  end
+
+  def get_session
+    puts "force get session"
+    request = Net::HTTP::Post.new('/loginAction.do')
+    request.set_form_data({ 'zjh' => @username, 'mm' => @passwd })
+    response = @http.request(request)
+
+    raise "can't get session"  if !response.code == '200'
+    @session = response["set-cookie"]
   end
 
   def get_score
     puts "get my score"
     raise "get_session first OR no session" if @session == nil
     request = Net::HTTP::Get.new('/bxqcjcxAction.do')
-    request['Cookie'] = @session  
-    respones = @http.request(request)
-    @body = respones.body.force_encoding('gbk').encode('utf-8').gsub(/\s/,"")
+    request['Cookie'] = @session
+    response = @http.request(request)
+    @body = response.body.force_encoding('gbk').encode('utf-8').gsub(/\s/,"")
 
     self
-  end
-  
-  def get_session
-    puts "get session"
-    request = Net::HTTP::Post.new('/loginAction.do')
-    request.set_form_data({ 'zjh' => @username, 'mm' => @passwd })
-    respones = @http.request(request)
-
-    raise "can't get session"  if !respones.code == '200'
-    @session = respones["set-cookie"]
   end
 
   def different?
@@ -78,6 +90,3 @@ class CheckOne
   end
 
 end
-
-
-
