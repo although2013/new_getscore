@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+require 'getscore'
+
+
+print "输入登录信息->\n"
+print "学号： "
+xh = gets.chomp
+print "密码："
+mm = gets.chomp
+
+me = CheckOne.new(xh, mm)
+me.get_score.parse_html

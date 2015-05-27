@@ -40,11 +40,12 @@ class CheckOne
         puts "#{host}"
       end
     end
+    puts "wait threads"
     threads.each(&:join)
   end
 
   def get_session
-    puts "force get session"
+    puts "force get session, |this method should not run|"
     request = Net::HTTP::Post.new('/loginAction.do')
     request.set_form_data({ 'zjh' => @username, 'mm' => @passwd })
     response = @http.request(request)
@@ -90,3 +91,4 @@ class CheckOne
   end
 
 end
+
