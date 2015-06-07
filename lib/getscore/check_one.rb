@@ -20,6 +20,9 @@ class CheckOne
     @passwd   = passwd
     @port     = 80
     @session  = nil
+    #@user_agent = {
+    #      'User-Agent' => "score-bot, just for test"
+    #}
 
     check_internet
     @http = Net::HTTP.new(@host, @port)
@@ -38,10 +41,9 @@ class CheckOne
         @session = response["set-cookie"]
         puts "*#{@session}*"
         puts "#{host}"
-      end
+      end.join
     end
     puts "wait threads"
-    threads.each(&:join)
   end
 
   def get_session

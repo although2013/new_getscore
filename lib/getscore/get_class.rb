@@ -18,12 +18,13 @@ module GetClassTxt
 
     request = Net::HTTP::Get.new(URI($1.to_s))
     @http.request(request) do |response|
+      return unless response.is_a?(Net::HTTPSuccess)
       File.open("html_file.tmp", "w") do |file|
         response.read_body do |segment|
           file.write(segment)
         end
       end
     end
-
+    "SUCCESS"
   end
 end

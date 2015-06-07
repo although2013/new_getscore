@@ -7,17 +7,13 @@ class CheckOne
   include GetClassTxt
 end
 
-
-#me = CheckOne.new("2012021712", "1")
 #
-#me.get_session
 #
-#me.get_score.parse_html
+#me = CheckOne.new("2012021713", "1")
+#page = me.get_whole_page
 #
-#if me.different?
-#  page = me.get_whole_page
-#  me.download_text(page)
+#loop do
+#  break if "SUCCESS" == me.download_text(page)
+#  sleep(3)
 #end
-
-
-
+#
