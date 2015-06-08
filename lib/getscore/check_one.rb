@@ -41,8 +41,9 @@ class CheckOne
         @session = response["set-cookie"]
         puts "*#{@session}*"
         puts "#{host}"
-      end.join
+      end
     end
+    threads.each(&:join)
     puts "wait threads"
   end
 
