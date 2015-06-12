@@ -39,12 +39,9 @@ class CheckOne
         threads.each { |thread| Thread.kill(thread) if thread != Thread.current }
         @host = host
         @session = response["set-cookie"]
-        puts "*#{@session}*"
-        puts "#{host}"
       end
     end
     threads.each(&:join)
-    puts "wait threads"
   end
 
   def get_session

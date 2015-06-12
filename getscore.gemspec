@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'getscore'
-  s.version     = '0.0.2'
-  s.date        = '2015-05-26'
+  s.version     = '0.9.2'
+  s.date        = '2015-06-12'
   s.summary     = "Get Score!"
   s.description = "A gem for get URP score"
   s.authors     = ["Ge Hao"]
